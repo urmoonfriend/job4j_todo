@@ -17,4 +17,8 @@ public interface TaskService {
     Optional<Task> findById(Integer id);
 
     List<Task> findAll();
+
+    List<Task> findAllNew();
+
+    List<Task> findAllDone();
 }

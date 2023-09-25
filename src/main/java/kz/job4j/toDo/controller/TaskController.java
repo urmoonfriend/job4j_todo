@@ -24,6 +24,18 @@ public class TaskController {
         return "tasks/list";
     }
 
+    @GetMapping("/new")
+    public String getNew(Model model) {
+        model.addAttribute("tasks", taskService.findAllNew());
+        return "tasks/list";
+    }
+
+    @GetMapping("/done")
+    public String getDone(Model model) {
+        model.addAttribute("tasks", taskService.findAllDone());
+        return "tasks/list";
+    }
+
     @GetMapping("/{id}")
     public String getTask(Model model, @PathVariable Integer id) {
         log.info("getTask method request: [{}]", id);

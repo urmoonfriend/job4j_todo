@@ -16,4 +16,8 @@ public interface TaskRepository {
     Optional<Task> findById(Integer id);
 
     List<Task> findAll();
+
+    List<Task> findAllNew();
+
+    List<Task> findAllDone();
 }

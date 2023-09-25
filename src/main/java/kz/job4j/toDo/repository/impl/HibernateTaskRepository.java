@@ -81,4 +81,24 @@ public class HibernateTaskRepository implements TaskRepository {
         log.info("tasks size: [{}]", result.size());
         return result;
     }
+
+    @Override
+    public List<Task> findAllNew() {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        List<Task> result = session.createQuery("FROM Task order by created desc", Task.class).list();
+        session.getTransaction().commit();
+        log.info("tasks size: [{}]", result.size());
+        return result;
+    }
+
+    @Override
+    public List<Task> findAllDone() {
+        Session session = sf.openSession();
+        session.beginTransaction();
+        List<Task> result = session.createQuery("from Task as i WHERE i.done = true", Task.class).list();
+        session.getTransaction().commit();
+        log.info("tasks size: [{}]", result.size());
+        return result;
+    }
 }
