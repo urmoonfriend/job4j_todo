@@ -1,4 +1,4 @@
-package kz.job4j.toDo;
+package kz.job4j.todo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

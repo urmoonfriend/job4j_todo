@@ -1,7 +1,7 @@
-package kz.job4j.toDo.repository.impl;
+package kz.job4j.todo.repository.impl;
 
-import kz.job4j.toDo.model.entity.Task;
-import kz.job4j.toDo.repository.TaskRepository;
+import kz.job4j.todo.model.entity.Task;
+import kz.job4j.todo.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;

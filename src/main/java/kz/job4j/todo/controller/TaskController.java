@@ -1,8 +1,8 @@
-package kz.job4j.toDo.controller;
+package kz.job4j.todo.controller;
 
-import kz.job4j.toDo.model.entity.Task;
-import kz.job4j.toDo.model.request.TaskRequest;
-import kz.job4j.toDo.service.TaskService;
+import kz.job4j.todo.model.entity.Task;
+import kz.job4j.todo.model.request.TaskRequest;
+import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

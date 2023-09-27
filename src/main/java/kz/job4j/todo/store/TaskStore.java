@@ -1,4 +1,4 @@
-package kz.job4j.toDo.store;
+package kz.job4j.todo.store;
 
 import lombok.AllArgsConstructor;
 import org.hibernate.SessionFactory;

@@ -1,4 +1,4 @@
-package kz.job4j.toDo.model.request;
+package kz.job4j.todo.model.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

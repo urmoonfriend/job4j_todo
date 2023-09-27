@@ -1,9 +1,9 @@
-package kz.job4j.toDo.service.impl;
+package kz.job4j.todo.service.impl;
 
-import kz.job4j.toDo.model.entity.Task;
-import kz.job4j.toDo.model.request.TaskRequest;
-import kz.job4j.toDo.repository.TaskRepository;
-import kz.job4j.toDo.service.TaskService;
+import kz.job4j.todo.model.entity.Task;
+import kz.job4j.todo.model.request.TaskRequest;
+import kz.job4j.todo.repository.TaskRepository;
+import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TaskServiceImp implements TaskService {
     private final TaskRepository taskRepository;
-    
+
     @Override
     public Task create(TaskRequest task) {
         return taskRepository.create(
