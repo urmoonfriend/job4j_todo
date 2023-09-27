@@ -1,4 +1,4 @@
-package kz.job4j.toDo.model.entity;
+package kz.job4j.todo.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

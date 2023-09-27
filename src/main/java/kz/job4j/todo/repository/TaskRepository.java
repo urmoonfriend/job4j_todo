@@ -1,14 +1,13 @@
-package kz.job4j.toDo.service;
+package kz.job4j.todo.repository;
 
-import kz.job4j.toDo.model.entity.Task;
-import kz.job4j.toDo.model.request.TaskRequest;
+import kz.job4j.todo.model.entity.Task;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface TaskService {
+public interface TaskRepository {
 
-    Task create(TaskRequest task);
+    Task create(Task task);
 
     Task update(Task task);
 
