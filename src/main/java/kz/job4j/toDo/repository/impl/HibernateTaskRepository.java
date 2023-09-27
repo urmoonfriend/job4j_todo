@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,8 @@ public class HibernateTaskRepository implements TaskRepository {
             taskToCreate = task;
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
         return taskToCreate;
     }
@@ -46,6 +49,8 @@ public class HibernateTaskRepository implements TaskRepository {
             taskToUpdate = task;
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
         return taskToUpdate;
     }
@@ -62,22 +67,41 @@ public class HibernateTaskRepository implements TaskRepository {
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
     }
 
     @Override
     public Optional<Task> findById(Integer id) {
         Session session = sf.openSession();
-        return session.createQuery("from Task as i where i.id = :tId")
-                .setParameter("tId", id).uniqueResultOptional();
+        Optional<Task> taskOpt = Optional.empty();
+        try {
+            session.beginTransaction();
+            taskOpt = session.createQuery("from Task as i where i.id = :tId")
+                    .setParameter("tId", id).uniqueResultOptional();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return taskOpt;
     }
 
     @Override
     public List<Task> findAll() {
         Session session = sf.openSession();
-        session.beginTransaction();
-        List<Task> result = session.createQuery("from Task", Task.class).list();
-        session.getTransaction().commit();
+        List<Task> result = new ArrayList<>();
+        try {
+            session.beginTransaction();
+            result = session.createQuery("from Task", Task.class).list();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
         log.info("tasks size: [{}]", result.size());
         return result;
     }
@@ -85,9 +109,16 @@ public class HibernateTaskRepository implements TaskRepository {
     @Override
     public List<Task> findAllNew() {
         Session session = sf.openSession();
-        session.beginTransaction();
-        List<Task> result = session.createQuery("FROM Task order by created desc", Task.class).list();
-        session.getTransaction().commit();
+        List<Task> result = new ArrayList<>();
+        try {
+            session.beginTransaction();
+            result = session.createQuery("FROM Task order by created desc", Task.class).list();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
         log.info("tasks size: [{}]", result.size());
         return result;
     }
@@ -95,9 +126,16 @@ public class HibernateTaskRepository implements TaskRepository {
     @Override
     public List<Task> findAllDone() {
         Session session = sf.openSession();
-        session.beginTransaction();
-        List<Task> result = session.createQuery("from Task as i WHERE i.done = true", Task.class).list();
-        session.getTransaction().commit();
+        List<Task> result = new ArrayList<>();
+        try {
+            session.beginTransaction();
+            result = session.createQuery("from Task as i WHERE i.done = true", Task.class).list();
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
         log.info("tasks size: [{}]", result.size());
         return result;
     }

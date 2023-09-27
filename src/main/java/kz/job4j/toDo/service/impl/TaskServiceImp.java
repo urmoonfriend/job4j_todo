@@ -26,12 +26,13 @@ public class TaskServiceImp implements TaskService {
     }
 
     @Override
-    public Task update(TaskRequest task) {
+    public Task update(Task task) {
         return taskRepository.update(
                 new Task()
                         .setId(task.getId())
                         .setDescription(task.getDescription())
-                        .setDone(task.isDone())
+                        .setCreated(task.getCreated())
+                        .setDone(task.getDone())
         );
     }
 
