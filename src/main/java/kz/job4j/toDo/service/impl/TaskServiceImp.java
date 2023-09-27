@@ -14,8 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TaskServiceImp implements TaskService {
     private final TaskRepository taskRepository;
-
-
+    
     @Override
     public Task create(TaskRequest task) {
         return taskRepository.create(
@@ -26,12 +25,13 @@ public class TaskServiceImp implements TaskService {
     }
 
     @Override
-    public Task update(TaskRequest task) {
+    public Task update(Task task) {
         return taskRepository.update(
                 new Task()
                         .setId(task.getId())
                         .setDescription(task.getDescription())
-                        .setDone(task.isDone())
+                        .setCreated(task.getCreated())
+                        .setDone(task.getDone())
         );
     }
 
