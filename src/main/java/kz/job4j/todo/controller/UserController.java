@@ -45,12 +45,12 @@ public class UserController {
 
     @PostMapping("/register")
     public String login(Model model, @ModelAttribute User user) {
-        var savedUser = userService.create(user);
-        if (savedUser == null) {
+        var userOpt = userService.create(user);
+        if (userOpt.isEmpty()) {
             model.addAttribute("message", "Пользователь с такой почтой уже существует");
             return "errors/404";
         }
-        model.addAttribute("user", user);
+        model.addAttribute("user", userOpt.get());
         return "users/login";
     }
 

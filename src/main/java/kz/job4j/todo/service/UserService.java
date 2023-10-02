@@ -7,7 +7,7 @@ import java.util.Optional;
 public interface UserService {
     Optional<User> findByLoginAndPassword(String email, String password);
 
-    User create(User user);
+    Optional<User> create(User user);
 
     User update(User user);
 

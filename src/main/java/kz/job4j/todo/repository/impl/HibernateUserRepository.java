@@ -18,23 +18,23 @@ public class HibernateUserRepository implements UserRepository {
     private final SessionFactory sf;
 
     @Override
-    public User create(User user) {
+    public Optional<User> create(User user) {
         log.info("create user method request: [{}]", user);
         Session session = sf.openSession();
-        User userToCreate = null;
+        Optional<User> userOpt = Optional.empty();
         try {
             session.beginTransaction();
             session.save(user);
             session.getTransaction().commit();
-            userToCreate = user;
+            userOpt = Optional.of(user);
         } catch (Exception e) {
             log.error("create user method error: [{}]", e.getMessage());
             session.getTransaction().rollback();
         } finally {
             session.close();
         }
-        log.info("create user method response: [{}]", userToCreate);
-        return userToCreate;
+        log.info("create user method response: [{}]", userOpt.get());
+        return userOpt;
     }
 
     @Override
