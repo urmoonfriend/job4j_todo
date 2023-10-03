@@ -48,7 +48,7 @@ public class UserController {
         var userOpt = userService.create(user);
         if (userOpt.isEmpty()) {
             model.addAttribute("message", "Пользователь с такой почтой уже существует");
-            return "errors/404";
+            return "users/register";
         }
         model.addAttribute("user", userOpt.get());
         return "users/login";
