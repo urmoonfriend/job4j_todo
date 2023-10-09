@@ -1,10 +1,14 @@
 package kz.job4j.todo.service.impl;
 
+import kz.job4j.todo.exception.DatabaseException;
+import kz.job4j.todo.exception.TaskNotFoundException;
+import kz.job4j.todo.mapper.TaskMapper;
+import kz.job4j.todo.model.dto.TaskDto;
 import kz.job4j.todo.model.entity.Task;
-import kz.job4j.todo.model.request.TaskRequest;
 import kz.job4j.todo.repository.TaskRepository;
 import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,27 +16,26 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TaskServiceImp implements TaskService {
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
     @Override
-    public Task create(TaskRequest task) {
+    public Task create(TaskDto task) throws DatabaseException {
         return taskRepository.create(
-                new Task()
-                        .setDescription(task.getDescription())
-                        .setDone(task.isDone())
-        );
+                taskMapper.detEntityFromDto(task)
+        ).orElseThrow(() -> new DatabaseException("User not created"));
     }
 
     @Override
-    public Task update(Task task) {
+    public Task update(TaskDto task) throws DatabaseException, TaskNotFoundException {
+        var taskOpt = findById(task.getId()).orElseThrow(
+                () -> new TaskNotFoundException("Задача с указанным идентификатором не найдена"));
         return taskRepository.update(
-                new Task()
-                        .setId(task.getId())
-                        .setDescription(task.getDescription())
-                        .setCreated(task.getCreated())
-                        .setDone(task.getDone())
-        );
+                taskMapper.detEntityFromDto(task)
+                        .setCreated(taskOpt.getCreated())
+        ).orElseThrow(() -> new DatabaseException("User not updated"));
     }
 
     @Override

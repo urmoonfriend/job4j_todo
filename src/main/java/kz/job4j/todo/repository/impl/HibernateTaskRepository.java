@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,14 +20,14 @@ public class HibernateTaskRepository implements TaskRepository {
     private final SessionFactory sf;
 
     @Override
-    public Task create(Task task) {
+    public Optional<Task> create(Task task) {
         Session session = sf.openSession();
-        Task taskToCreate = null;
+        Optional<Task> taskToCreate = Optional.empty();
         try {
             session.beginTransaction();
             session.save(task);
             session.getTransaction().commit();
-            taskToCreate = task;
+            taskToCreate = Optional.of(task);
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
@@ -36,17 +37,14 @@ public class HibernateTaskRepository implements TaskRepository {
     }
 
     @Override
-    public Task update(Task task) {
+    public Optional<Task> update(Task task) {
         Session session = sf.openSession();
-        Task taskToUpdate = null;
+        Optional<Task> taskToUpdate = Optional.empty();
         try {
             session.beginTransaction();
-            session.createQuery("UPDATE Task SET description = :tDescription, done = :tDone WHERE id = :tId")
-                    .setParameter("tDescription", task.getDescription())
-                    .setParameter("tDone", task.getDone())
-                    .setParameter("tId", task.getId())
-                    .executeUpdate();
-            taskToUpdate = task;
+            session.update(task);
+            session.getTransaction().commit();
+            taskToUpdate = Optional.of(task);
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
@@ -110,9 +108,11 @@ public class HibernateTaskRepository implements TaskRepository {
     public List<Task> findAllNew() {
         Session session = sf.openSession();
         List<Task> result = new ArrayList<>();
+        LocalDateTime newTime = LocalDateTime.now().minusHours(12);
         try {
             session.beginTransaction();
-            result = session.createQuery("FROM Task order by created desc", Task.class).list();
+            result = session.createQuery("FROM Task as i where i.created >= :newTime order by created desc", Task.class)
+                    .setParameter("newTime", newTime).list();
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();

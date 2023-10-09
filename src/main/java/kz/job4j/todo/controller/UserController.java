@@ -44,13 +44,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public String login(Model model, @ModelAttribute User user) {
-        var userOpt = userService.create(user);
-        if (userOpt.isEmpty()) {
+    public String register(Model model, @ModelAttribute User user) {
+        if (userService.findByLoginAndPassword(user.getLogin(), user.getPassword()).isPresent()) {
             model.addAttribute("message", "Пользователь с такой почтой уже существует");
             return "users/register";
         }
-        model.addAttribute("user", userOpt.get());
+        userService.create(user);
         return "users/login";
     }
 

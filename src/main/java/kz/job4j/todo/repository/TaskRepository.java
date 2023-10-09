@@ -7,9 +7,9 @@ import java.util.Optional;
 
 public interface TaskRepository {
 
-    Task create(Task task);
+    Optional<Task> create(Task task);
 
-    Task update(Task task);
+    Optional<Task> update(Task task);
 
     void delete(Integer id);
 

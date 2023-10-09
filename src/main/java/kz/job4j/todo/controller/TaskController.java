@@ -1,7 +1,10 @@
 package kz.job4j.todo.controller;
 
+import kz.job4j.todo.exception.DatabaseException;
+import kz.job4j.todo.exception.TaskNotFoundException;
+import kz.job4j.todo.mapper.TaskMapper;
 import kz.job4j.todo.model.entity.Task;
-import kz.job4j.todo.model.request.TaskRequest;
+import kz.job4j.todo.model.dto.TaskDto;
 import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +20,11 @@ import java.util.Optional;
 @Slf4j
 public class TaskController {
     private final TaskService taskService;
+    private final TaskMapper taskMapper;
     private static final String NOT_FOUND_MESSAGE = "Задача с указанным идентификатором не найдена";
     private static final String MESSAGE_ATTRIBUTE = "message";
-
     private static final String REDIRECT_TASKS = "redirect:/tasks";
     private static final String TASKS_LIST = "tasks/list";
-
     private static final String TASKS_ONE = "tasks/one";
     private static final String TASKS_ATTRIBUTE = "tasks";
     private static final String NOT_FOUND_PAGE = "errors/404";
@@ -63,12 +65,13 @@ public class TaskController {
     }
 
     @PostMapping("/create")
-    public String create(@ModelAttribute TaskRequest task, Model model) {
+    public String create(@ModelAttribute TaskDto task, Model model) {
         try {
             taskService.create(task);
             return REDIRECT_TASKS;
-        } catch (Exception exception) {
-            model.addAttribute(MESSAGE_ATTRIBUTE, exception.getMessage());
+        } catch (Exception | DatabaseException e) {
+            log.error(e.getMessage());
+            model.addAttribute(MESSAGE_ATTRIBUTE, e.getMessage());
             return NOT_FOUND_PAGE;
         }
     }
@@ -79,9 +82,15 @@ public class TaskController {
         if (taskOpt.isEmpty()) {
             return NOT_FOUND_PAGE;
         }
-        Task taskToUpdate = taskOpt.get().setDone(true);
-        Task updatedTask = taskService.update(taskToUpdate);
-        model.addAttribute("task", updatedTask);
+        try {
+            Task taskToUpdate = taskOpt.get().setDone(true);
+            Task updatedTask = taskService.update(taskMapper.getModelFromEntity(taskToUpdate));
+            model.addAttribute("task", updatedTask);
+        } catch (Exception | DatabaseException | TaskNotFoundException e) {
+            log.error(e.getMessage());
+            model.addAttribute(MESSAGE_ATTRIBUTE, e.getMessage());
+            return NOT_FOUND_PAGE;
+        }
         return TASKS_ONE;
     }
 
@@ -108,24 +117,14 @@ public class TaskController {
     }
 
     @PostMapping("/update")
-    public String update(@ModelAttribute Task task, Model model) {
+    public String update(@ModelAttribute TaskDto task, Model model) {
         try {
-            var taskOpt = taskService.findById(task.getId());
-            if (taskOpt.isEmpty()) {
-                model.addAttribute(MESSAGE_ATTRIBUTE, NOT_FOUND_MESSAGE);
-                return NOT_FOUND_PAGE;
-            }
-            var updatedTask = taskService.update(
-                    new Task()
-                            .setId(taskOpt.get().getId())
-                            .setDescription(task.getDescription())
-                            .setDone(task.getDone())
-                            .setCreated(taskOpt.get().getCreated())
-            );
+            var updatedTask = taskService.update(task);
             model.addAttribute("task", updatedTask);
             return TASKS_ONE;
-        } catch (Exception exception) {
-            model.addAttribute(MESSAGE_ATTRIBUTE, exception.getMessage());
+        } catch (Exception | DatabaseException | TaskNotFoundException e) {
+            log.error(e.getMessage());
+            model.addAttribute(MESSAGE_ATTRIBUTE, e.getMessage());
             return NOT_FOUND_PAGE;
         }
     }
