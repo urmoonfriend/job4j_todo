@@ -28,7 +28,7 @@
 				<liquibase.config>db/changelog/liquibase_test.properties</liquibase.config>
 			</properties>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 		</profile>
 		<profile>
@@ -37,7 +37,7 @@
 				<liquibase.config>db/changelog/liquibase.properties</liquibase.config>
 			</properties>
 			<activation>
-				<activeByDefault>true</activeByDefault>
+				<activeByDefault>false</activeByDefault>
 			</activation>
 		</profile>
 	</profiles>
