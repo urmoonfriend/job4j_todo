@@ -1,7 +1,5 @@
 package kz.job4j.todo.service.impl;
 
-import kz.job4j.todo.exception.DatabaseException;
-import kz.job4j.todo.exception.TaskNotFoundException;
 import kz.job4j.todo.mapper.TaskMapper;
 import kz.job4j.todo.model.dto.TaskDto;
 import kz.job4j.todo.model.entity.Task;
@@ -22,20 +20,38 @@ public class TaskServiceImp implements TaskService {
     private final TaskMapper taskMapper;
 
     @Override
-    public Task create(TaskDto task) throws DatabaseException {
-        return taskRepository.create(
-                taskMapper.detEntityFromDto(task)
-        ).orElseThrow(() -> new DatabaseException("User not created"));
+    public Optional<Task> create(TaskDto task) {
+        return taskRepository.create(taskMapper.getEntityFromDto(task));
     }
 
     @Override
-    public Task update(TaskDto task) throws DatabaseException, TaskNotFoundException {
-        var taskOpt = findById(task.getId()).orElseThrow(
-                () -> new TaskNotFoundException("Задача с указанным идентификатором не найдена"));
-        return taskRepository.update(
-                taskMapper.detEntityFromDto(task)
-                        .setCreated(taskOpt.getCreated())
-        ).orElseThrow(() -> new DatabaseException("User not updated"));
+    public Optional<Task> update(TaskDto taskDto) {
+        Optional<Task> taskToUpdate = findById(taskDto.getId());
+        if (taskToUpdate.isPresent()) {
+            taskToUpdate = taskRepository.update(
+                    taskMapper.getEntityFromDto(taskDto)
+                            .setCreated(taskToUpdate.get().getCreated())
+            );
+        }
+        return taskToUpdate;
+    }
+
+    @Override
+    public Optional<Task> completeTask(Integer id) {
+        Optional<Task> taskToUpdate = findById(id);
+        if (taskToUpdate.isPresent()) {
+            taskToUpdate = taskRepository.update(
+                    taskMapper.getEntityFromDto(
+                                    new TaskDto()
+                                            .setId(id)
+                                            .setTitle(taskToUpdate.get().getTitle())
+                                            .setDescription(taskToUpdate.get().getDescription())
+                                            .setDone(true)
+                            )
+                            .setCreated(taskToUpdate.get().getCreated())
+            );
+        }
+        return taskToUpdate;
     }
 
     @Override

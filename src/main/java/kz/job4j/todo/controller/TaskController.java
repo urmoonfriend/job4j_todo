@@ -1,10 +1,7 @@
 package kz.job4j.todo.controller;
 
-import kz.job4j.todo.exception.DatabaseException;
-import kz.job4j.todo.exception.TaskNotFoundException;
-import kz.job4j.todo.mapper.TaskMapper;
-import kz.job4j.todo.model.entity.Task;
 import kz.job4j.todo.model.dto.TaskDto;
+import kz.job4j.todo.model.entity.Task;
 import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +17,6 @@ import java.util.Optional;
 @Slf4j
 public class TaskController {
     private final TaskService taskService;
-    private final TaskMapper taskMapper;
     private static final String NOT_FOUND_MESSAGE = "Задача с указанным идентификатором не найдена";
     private static final String MESSAGE_ATTRIBUTE = "message";
     private static final String REDIRECT_TASKS = "redirect:/tasks";
@@ -30,19 +26,19 @@ public class TaskController {
     private static final String NOT_FOUND_PAGE = "errors/404";
 
     @GetMapping
-    public String getAll(Model model) {
+    public String getAllTasks(Model model) {
         model.addAttribute(TASKS_ATTRIBUTE, taskService.findAll());
         return TASKS_LIST;
     }
 
     @GetMapping("/new")
-    public String getNew(Model model) {
+    public String getNewTasks(Model model) {
         model.addAttribute(TASKS_ATTRIBUTE, taskService.findAllNew());
         return TASKS_LIST;
     }
 
     @GetMapping("/done")
-    public String getDone(Model model) {
+    public String getCompletedTasks(Model model) {
         model.addAttribute(TASKS_ATTRIBUTE, taskService.findAllDone());
         return TASKS_LIST;
     }
@@ -60,37 +56,28 @@ public class TaskController {
     }
 
     @GetMapping("/create")
-    public String createTask(Model model) {
+    public String getCreationPage() {
         return "tasks/create";
     }
 
     @PostMapping("/create")
     public String create(@ModelAttribute TaskDto task, Model model) {
-        try {
-            taskService.create(task);
-            return REDIRECT_TASKS;
-        } catch (Exception | DatabaseException e) {
-            log.error(e.getMessage());
-            model.addAttribute(MESSAGE_ATTRIBUTE, e.getMessage());
+        Optional<Task> taskOpt = taskService.create(task);
+        if (taskOpt.isEmpty()) {
+            model.addAttribute(MESSAGE_ATTRIBUTE, NOT_FOUND_MESSAGE);
             return NOT_FOUND_PAGE;
         }
+        return REDIRECT_TASKS;
     }
 
     @GetMapping("/done/{id}")
-    public String getDone(Model model, @PathVariable("id") Integer id) {
-        var taskOpt = taskService.findById(id);
+    public String complete(Model model, @PathVariable("id") Integer id) {
+        Optional<Task> taskOpt = taskService.completeTask(id);
         if (taskOpt.isEmpty()) {
+            model.addAttribute(MESSAGE_ATTRIBUTE, NOT_FOUND_MESSAGE);
             return NOT_FOUND_PAGE;
         }
-        try {
-            Task taskToUpdate = taskOpt.get().setDone(true);
-            Task updatedTask = taskService.update(taskMapper.getModelFromEntity(taskToUpdate));
-            model.addAttribute("task", updatedTask);
-        } catch (Exception | DatabaseException | TaskNotFoundException e) {
-            log.error(e.getMessage());
-            model.addAttribute(MESSAGE_ATTRIBUTE, e.getMessage());
-            return NOT_FOUND_PAGE;
-        }
+        model.addAttribute("task", taskOpt.get());
         return TASKS_ONE;
     }
 
@@ -106,7 +93,7 @@ public class TaskController {
     }
 
     @GetMapping("/update/{id}")
-    public String update(Model model, @PathVariable("id") Integer id) {
+    public String getUpdatePage(Model model, @PathVariable("id") Integer id) {
         var taskToUpdate = taskService.findById(id);
         if (taskToUpdate.isEmpty()) {
             model.addAttribute(MESSAGE_ATTRIBUTE, NOT_FOUND_MESSAGE);
@@ -118,14 +105,12 @@ public class TaskController {
 
     @PostMapping("/update")
     public String update(@ModelAttribute TaskDto task, Model model) {
-        try {
-            var updatedTask = taskService.update(task);
-            model.addAttribute("task", updatedTask);
-            return TASKS_ONE;
-        } catch (Exception | DatabaseException | TaskNotFoundException e) {
-            log.error(e.getMessage());
-            model.addAttribute(MESSAGE_ATTRIBUTE, e.getMessage());
+        Optional<Task> taskOpt = taskService.update(task);
+        if (taskOpt.isEmpty()) {
+            model.addAttribute(MESSAGE_ATTRIBUTE, NOT_FOUND_MESSAGE);
             return NOT_FOUND_PAGE;
         }
+        model.addAttribute("task", taskOpt.get());
+        return TASKS_ONE;
     }
 }

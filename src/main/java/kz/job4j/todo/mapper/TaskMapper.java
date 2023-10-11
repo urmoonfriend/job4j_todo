@@ -7,9 +7,8 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
-
     TaskDto getModelFromEntity(Task task);
 
     @InheritInverseConfiguration
-    Task detEntityFromDto(TaskDto taskDto);
+    Task getEntityFromDto(TaskDto taskDto);
 }
