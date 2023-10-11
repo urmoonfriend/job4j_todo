@@ -11,5 +11,5 @@ public interface TaskMapper {
     TaskDto getModelFromEntity(Task task);
 
     @InheritInverseConfiguration
-    Task detEntityFromDto(TaskDto taskDto);
+    Task getEntityFromDto(TaskDto taskDto);
 }

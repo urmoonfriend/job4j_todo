@@ -1,7 +1,5 @@
 package kz.job4j.todo.service.impl;
 
-import kz.job4j.todo.exception.DatabaseException;
-import kz.job4j.todo.exception.TaskNotFoundException;
 import kz.job4j.todo.mapper.TaskMapper;
 import kz.job4j.todo.model.dto.TaskDto;
 import kz.job4j.todo.model.entity.Task;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -22,20 +21,40 @@ public class TaskServiceImp implements TaskService {
     private final TaskMapper taskMapper;
 
     @Override
-    public Task create(TaskDto task) throws DatabaseException {
-        return taskRepository.create(
-                taskMapper.detEntityFromDto(task)
-        ).orElseThrow(() -> new DatabaseException("User not created"));
+    public Optional<Task> create(TaskDto task) {
+        return taskRepository.create(taskMapper.getEntityFromDto(task));
     }
 
     @Override
-    public Task update(TaskDto task) throws DatabaseException, TaskNotFoundException {
-        var taskOpt = findById(task.getId()).orElseThrow(
-                () -> new TaskNotFoundException("Задача с указанным идентификатором не найдена"));
-        return taskRepository.update(
-                taskMapper.detEntityFromDto(task)
-                        .setCreated(taskOpt.getCreated())
-        ).orElseThrow(() -> new DatabaseException("User not updated"));
+    public Optional<Task> update(TaskDto taskDto) {
+        AtomicReference<Optional<Task>> taskToUpdate = new AtomicReference<>(Optional.empty());
+        findById(taskDto.getId())
+                .ifPresent(
+                        taskOpt -> taskToUpdate.set(taskRepository.update(
+                                taskMapper.getEntityFromDto(taskDto)
+                                        .setCreated(taskOpt.getCreated())
+                        ))
+                );
+        return taskToUpdate.get();
+    }
+
+    @Override
+    public Optional<Task> completeTask(Integer id) {
+        AtomicReference<Optional<Task>> taskToUpdate = new AtomicReference<>(Optional.empty());
+        findById(id)
+                .ifPresent(
+                        taskOpt -> taskToUpdate.set(taskRepository.update(
+                                taskMapper.getEntityFromDto(
+                                        new TaskDto()
+                                                .setId(id)
+                                                .setTitle(taskOpt.getTitle())
+                                                .setDescription(taskOpt.getDescription())
+                                                .setDone(true)
+                                        )
+                                        .setCreated(taskOpt.getCreated())
+                        ))
+                );
+        return taskToUpdate.get();
     }
 
     @Override
