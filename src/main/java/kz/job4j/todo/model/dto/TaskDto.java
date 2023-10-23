@@ -1,5 +1,6 @@
 package kz.job4j.todo.model.dto;
 
+import kz.job4j.todo.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,5 @@ public class TaskDto {
     private String description;
     private String created;
     private boolean done;
+    private User user;
 }

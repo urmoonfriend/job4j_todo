@@ -2,6 +2,7 @@ package kz.job4j.todo.controller;
 
 import kz.job4j.todo.model.dto.TaskDto;
 import kz.job4j.todo.model.entity.Task;
+import kz.job4j.todo.model.entity.User;
 import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 @Controller
@@ -61,7 +63,8 @@ public class TaskController {
     }
 
     @PostMapping("/create")
-    public String create(@ModelAttribute TaskDto task, Model model) {
+    public String create(@ModelAttribute TaskDto task, Model model, HttpSession session) {
+        task.setUser((User) session.getAttribute("user"));
         Optional<Task> taskOpt = taskService.create(task);
         if (taskOpt.isEmpty()) {
             model.addAttribute(MESSAGE_ATTRIBUTE, NOT_FOUND_MESSAGE);
@@ -104,7 +107,8 @@ public class TaskController {
     }
 
     @PostMapping("/update")
-    public String update(@ModelAttribute TaskDto task, Model model) {
+    public String update(@ModelAttribute TaskDto task, Model model, HttpSession session) {
+        task.setUser((User) session.getAttribute("user"));
         Optional<Task> taskOpt = taskService.update(task);
         if (taskOpt.isEmpty()) {
             model.addAttribute(MESSAGE_ATTRIBUTE, NOT_FOUND_MESSAGE);

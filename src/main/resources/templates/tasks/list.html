@@ -52,6 +52,7 @@
                         <th scope="col">Задача</th>
                         <th scope="col">Дата создания</th>
                         <th scope="col">Статус</th>
+                        <th scope="col">Пользователь</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -67,6 +68,7 @@
                                 <label class="form-check-label" for="done"></label>
                             </div>
                         </td>
+                        <td th:text="${task.user.name}"/>
                     </tr>
                     </tbody>
                 </table>
