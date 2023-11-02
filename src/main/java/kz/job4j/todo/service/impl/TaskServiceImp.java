@@ -2,8 +2,10 @@ package kz.job4j.todo.service.impl;
 
 import kz.job4j.todo.mapper.TaskMapper;
 import kz.job4j.todo.model.dto.TaskDto;
+import kz.job4j.todo.model.entity.Priority;
 import kz.job4j.todo.model.entity.Task;
 import kz.job4j.todo.repository.TaskRepository;
+import kz.job4j.todo.service.PriorityService;
 import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +20,12 @@ import java.util.Optional;
 public class TaskServiceImp implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+    private final PriorityService priorityService;
 
     @Override
     public Optional<Task> create(TaskDto task) {
+        Optional<Priority> priorityOpt = priorityService.findById(task.getPriority().getId());
+        priorityOpt.ifPresent(task::setPriority);
         return taskRepository.create(taskMapper.getEntityFromDto(task));
     }
 
@@ -28,6 +33,8 @@ public class TaskServiceImp implements TaskService {
     public Optional<Task> update(TaskDto taskDto) {
         Optional<Task> taskToUpdate = findById(taskDto.getId());
         if (taskToUpdate.isPresent()) {
+            Optional<Priority> priorityOpt = priorityService.findById(taskDto.getPriority().getId());
+            priorityOpt.ifPresent(taskDto::setPriority);
             taskToUpdate = taskRepository.update(
                     taskMapper.getEntityFromDto(taskDto)
                             .setCreated(taskToUpdate.get().getCreated())
@@ -40,16 +47,8 @@ public class TaskServiceImp implements TaskService {
     public Optional<Task> completeTask(Integer id) {
         Optional<Task> taskToUpdate = findById(id);
         if (taskToUpdate.isPresent()) {
-            taskToUpdate = taskRepository.update(
-                    taskMapper.getEntityFromDto(
-                                    new TaskDto()
-                                            .setId(id)
-                                            .setTitle(taskToUpdate.get().getTitle())
-                                            .setDescription(taskToUpdate.get().getDescription())
-                                            .setDone(true)
-                            )
-                            .setCreated(taskToUpdate.get().getCreated())
-            );
+            var task = taskToUpdate.get().setDone(true);
+            taskToUpdate = taskRepository.update(task);
         }
         return taskToUpdate;
     }

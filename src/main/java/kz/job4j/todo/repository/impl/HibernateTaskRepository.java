@@ -38,24 +38,24 @@ public class HibernateTaskRepository implements TaskRepository {
 
     @Override
     public Optional<Task> findById(Integer id) {
-        return crudRepository.optional("from Task where id = :tId",
+        return crudRepository.optional("from Task f JOIN FETCH f.priority where f.id = :tId",
                 Map.of("tId", id));
     }
 
     @Override
     public List<Task> findAll() {
-        return crudRepository.query("from Task", Task.class);
+        return crudRepository.query("from Task f JOIN FETCH f.priority", Task.class);
     }
 
     @Override
     public List<Task> findAllNew() {
         LocalDateTime newTime = LocalDateTime.now().minusHours(12);
-        return crudRepository.query("from Task as i where i.created >= :newTime order by created desc",
+        return crudRepository.query("from Task as i JOIN FETCH i.priority where i.created >= :newTime order by created desc",
                 Task.class, Map.of("newTime", newTime));
     }
 
     @Override
     public List<Task> findAllDone() {
-        return crudRepository.query("from Task as i WHERE i.done = true", Task.class);
+        return crudRepository.query("from Task as i JOIN FETCH i.priority WHERE i.done = true", Task.class);
     }
 }
