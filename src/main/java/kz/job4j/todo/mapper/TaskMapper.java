@@ -12,5 +12,6 @@ public interface TaskMapper {
 
     @InheritInverseConfiguration
     @Mapping(source = "user", target = "user")
+    @Mapping(source = "priority", target = "priority")
     Task getEntityFromDto(TaskDto taskDto);
 }

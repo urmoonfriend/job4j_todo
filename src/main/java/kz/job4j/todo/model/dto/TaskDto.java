@@ -1,5 +1,6 @@
 package kz.job4j.todo.model.dto;
 
+import kz.job4j.todo.model.entity.Priority;
 import kz.job4j.todo.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class TaskDto {
     private String created;
     private boolean done;
     private User user;
+    private Priority priority;
 }
