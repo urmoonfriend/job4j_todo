@@ -16,5 +16,6 @@
         <mapping class="kz.job4j.todo.model.entity.Task"/>
         <mapping class="kz.job4j.todo.model.entity.User"/>
         <mapping class="kz.job4j.todo.model.entity.Priority"/>
+        <mapping class="kz.job4j.todo.model.entity.Category"/>
     </session-factory>
 </hibernate-configuration>
