@@ -2,9 +2,11 @@ package kz.job4j.todo.service.impl;
 
 import kz.job4j.todo.mapper.TaskMapper;
 import kz.job4j.todo.model.dto.TaskDto;
+import kz.job4j.todo.model.entity.Category;
 import kz.job4j.todo.model.entity.Priority;
 import kz.job4j.todo.model.entity.Task;
 import kz.job4j.todo.repository.TaskRepository;
+import kz.job4j.todo.service.CategoryService;
 import kz.job4j.todo.service.PriorityService;
 import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +24,14 @@ public class TaskServiceImp implements TaskService {
     private final TaskMapper taskMapper;
     private final PriorityService priorityService;
 
+    private final CategoryService categoryService;
+
     @Override
     public Optional<Task> create(TaskDto task) {
         Optional<Priority> priorityOpt = priorityService.findById(task.getPriority().getId());
         priorityOpt.ifPresent(task::setPriority);
+        List<Category> categories = categoryService.findAllByIds(task.getCategoryIds());
+        task.setCategories(categories);
         return taskRepository.create(taskMapper.getEntityFromDto(task));
     }
 
@@ -35,6 +41,8 @@ public class TaskServiceImp implements TaskService {
         if (taskToUpdate.isPresent()) {
             Optional<Priority> priorityOpt = priorityService.findById(taskDto.getPriority().getId());
             priorityOpt.ifPresent(taskDto::setPriority);
+            List<Category> categories = categoryService.findAllByIds(taskDto.getCategoryIds());
+            taskDto.setCategories(categories);
             taskToUpdate = taskRepository.update(
                     taskMapper.getEntityFromDto(taskDto)
                             .setCreated(taskToUpdate.get().getCreated())

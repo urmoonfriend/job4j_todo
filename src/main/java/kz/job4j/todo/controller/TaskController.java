@@ -3,6 +3,7 @@ package kz.job4j.todo.controller;
 import kz.job4j.todo.model.dto.TaskDto;
 import kz.job4j.todo.model.entity.Task;
 import kz.job4j.todo.model.entity.User;
+import kz.job4j.todo.service.CategoryService;
 import kz.job4j.todo.service.PriorityService;
 import kz.job4j.todo.service.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class TaskController {
     private final TaskService taskService;
     private final PriorityService priorityService;
+    private final CategoryService categoryService;
     private static final String NOT_FOUND_MESSAGE = "Задача с указанным идентификатором не найдена";
     private static final String MESSAGE_ATTRIBUTE = "message";
     private static final String REDIRECT_TASKS = "redirect:/tasks";
@@ -62,11 +64,13 @@ public class TaskController {
     @GetMapping("/create")
     public String getCreationPage(Model model) {
         model.addAttribute("priorities", priorityService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "tasks/create";
     }
 
     @PostMapping("/create")
     public String create(@ModelAttribute TaskDto task, Model model, HttpSession session) {
+        log.info("controller create task request: {}", task);
         task.setUser((User) session.getAttribute("user"));
         Optional<Task> taskOpt = taskService.create(task);
         if (taskOpt.isEmpty()) {
@@ -107,6 +111,7 @@ public class TaskController {
         }
         model.addAttribute("task", taskToUpdate.get());
         model.addAttribute("priorities", priorityService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "tasks/update";
     }
 
