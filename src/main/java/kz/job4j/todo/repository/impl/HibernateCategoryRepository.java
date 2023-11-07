@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -25,5 +23,11 @@ public class HibernateCategoryRepository implements CategoryRepository {
     @Override
     public Optional<Category> findById(Integer id) {
         return crudRepository.optional("from Category where id = :cId", Map.of("cId", id));
+    }
+
+    @Override
+    public List<Category> findAllIn(List<Integer> categoryIds) {
+        return crudRepository.query("from Category c where c.id IN (:categoryIds)",
+                Category.class, Map.of("categoryIds", categoryIds));
     }
 }

@@ -30,13 +30,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> findAllByIds(List<Integer> categories) {
-        List<Category> categoriesToReturn = new ArrayList<>();
-        categories.forEach(
-                id -> {
-                    Optional<Category> categoryOpt = categoryRepository.findById(id);
-                    categoryOpt.ifPresent(categoriesToReturn::add);
-                }
-        );
-        return categoriesToReturn;
+        return categoryRepository.findAllIn(categories);
     }
 }
