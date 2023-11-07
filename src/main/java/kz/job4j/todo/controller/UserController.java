@@ -1,8 +1,10 @@
 package kz.job4j.todo.controller;
 
 import kz.job4j.todo.model.entity.User;
+import kz.job4j.todo.service.TimeZoneService;
 import kz.job4j.todo.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +18,11 @@ import javax.servlet.http.HttpSession;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private final UserService userService;
+
+    private final TimeZoneService timeZoneService;
 
     @GetMapping("/login")
     public String getLoginPage() {
@@ -39,12 +44,14 @@ public class UserController {
     }
 
     @GetMapping("/register")
-    public String getRegisterPage() {
+    public String getRegisterPage(Model model) {
+        model.addAttribute("zones", timeZoneService.getTimeZones());
         return "users/register";
     }
 
     @PostMapping("/register")
     public String register(Model model, @ModelAttribute User user) {
+        log.info("user register request: {}", user);
         if (userService.findByLoginAndPassword(user.getLogin(), user.getPassword()).isPresent()) {
             model.addAttribute("message", "Пользователь с такой почтой уже существует");
             return "users/register";

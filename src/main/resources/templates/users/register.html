@@ -30,6 +30,12 @@
                 <label for="password" class="form-label"><b>Пароль</b></label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
+            <div class="mb-3">
+                <label for="userZone"><b>Таймзона</b></label>
+                <select class="form-control" id="userZone" name="userZone">
+                    <option th:each="userZone : ${zones}" th:value="${userZone}" th:text="${userZone}"></option>
+                </select>
+            </div>
             <div class="mb-3 row">
                 <div class="col-6"></div>
                 <div class="col-6">
