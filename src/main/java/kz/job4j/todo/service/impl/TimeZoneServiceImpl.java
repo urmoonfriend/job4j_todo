@@ -5,8 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 @Service
@@ -15,11 +18,22 @@ import java.util.TimeZone;
 public class TimeZoneServiceImpl implements TimeZoneService {
 
     @Override
-    public List<TimeZone> getTimeZones() {
-        var zones = new ArrayList<TimeZone>();
-        for (String timeId : TimeZone.getAvailableIDs()) {
-            zones.add(TimeZone.getTimeZone(timeId));
+    public List<String> getTimeZones() {
+        return Arrays.stream(TimeZone.getAvailableIDs()).toList();
+    }
+
+    @Override
+    public LocalDateTime convert(Optional<String> fromTimeZoneId, Optional<String> toTimeZoneId, LocalDateTime giveDate) {
+        ZoneId defaultTimeZoneFrom = ZoneId.of(TimeZone.getDefault().getID());
+        ZoneId defaultTimeZoneTo = ZoneId.of(TimeZone.getDefault().getID());
+        if (fromTimeZoneId.isPresent()) {
+            defaultTimeZoneFrom = ZoneId.of(fromTimeZoneId.get());
         }
-        return zones;
+        if (toTimeZoneId.isPresent()) {
+            defaultTimeZoneTo = ZoneId.of(toTimeZoneId.get());
+        }
+        return giveDate.atZone(defaultTimeZoneFrom)
+                .withZoneSameInstant(defaultTimeZoneTo)
+                .toLocalDateTime();
     }
 }
